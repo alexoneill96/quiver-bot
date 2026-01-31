@@ -3,10 +3,10 @@ spring:
     name: quiver-bot
 
   datasource:
-    # Supports Railway's DATABASE_URL or individual vars for local dev
-    url: ${DATABASE_URL:jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:quiverbot}}
-    username: ${DB_USER:}
-    password: ${DB_PASSWORD:}
+    # Uses PGHOST/PGPORT/etc from Railway, falls back to DB_* for local dev
+    url: jdbc:postgresql://${PGHOST:${DB_HOST:localhost}}:${PGPORT:${DB_PORT:5432}}/${PGDATABASE:${DB_NAME:quiverbot}}
+    username: ${PGUSER:${DB_USER:quiverbot}}
+    password: ${PGPASSWORD:${DB_PASSWORD:quiverbot}}
     driver-class-name: org.postgresql.Driver
 
   jpa:
