@@ -1,0 +1,33 @@
+# Gradle
+.gradle/
+build/
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Documentation
+README.md
+
+# Docker (don't include in context)
+docker-compose*.yml
+.dockerignore

@@ -1,0 +1,96 @@
+spring:
+  application:
+    name: quiver-bot
+
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:quiverbot}
+    username: ${DB_USER:quiverbot}
+    password: ${DB_PASSWORD:quiverbot}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+
+# Server configuration
+server:
+  port: ${PORT:3000}
+
+# External API credentials
+rapidapi:
+  key: ${RAPIDAPI_KEY:}
+
+quiverquant:
+  rest-id: ${QUIVERQUANT_REST_ID:}
+
+twitter:
+  target-username: ${TWITTER_TARGET_USERNAME:QuiverQuant}
+
+openai:
+  api-key: ${OPENAI_API_KEY:}
+  model: ${OPENAI_MODEL:gpt-4-turbo-preview}
+  # Prompt version: V1 (broad classification) or V2 (tight, actionable signals only)
+  prompt-version: ${OPENAI_PROMPT_VERSION:V2}
+
+sender:
+  api-key: ${SENDER_API_KEY:}
+  from-email: ${SENDER_FROM_EMAIL:}
+  from-name: ${SENDER_FROM_NAME:QuiverQuant Alerts}
+
+# Email test mode - when true, emails are logged to console instead of sent
+email:
+  test-mode: ${EMAIL_TEST_MODE:false}
+
+# Notification channels
+notify:
+  email:
+    enabled: ${EMAIL_ALERTS:true}
+  telegram:
+    enabled: ${TELEGRAM_ALERTS:false}
+
+# Telegram Bot configuration
+telegram:
+  bot-token: ${TELEGRAM_BOT_TOKEN:}
+  chat-id: ${TELEGRAM_CHAT_ID:}
+  disable-preview: ${TELEGRAM_DISABLE_PREVIEW:true}
+
+# Feature flags
+ingestion:
+  enabled: ${INGESTION_ENABLED:true}
+  cron: ${INGESTION_CRON:0 */5 * * * *}
+
+classification:
+  enabled: ${CLASSIFICATION_ENABLED:true}
+  cron: ${CLASSIFICATION_CRON:0 * * * * *}
+  signal-threshold: ${SIGNAL_THRESHOLD:0.5}
+  batch-size: ${CLASSIFICATION_BATCH_SIZE:10}
+
+alerting:
+  enabled: ${ALERTING_ENABLED:true}
+  cron: ${ALERTING_CRON:*/30 * * * * *}
+  threshold: ${ALERT_THRESHOLD:0.7}
+
+summary:
+  enabled: ${SUMMARY_ENABLED:true}
+  cron: ${SUMMARY_CRON:0 0 13 * * *}
+
+# Disable cron jobs for manual testing
+cron:
+  disabled: ${DISABLE_CRON_JOBS:false}
+
+# Logging
+logging:
+  level:
+    root: INFO
+    com.quiverbot: DEBUG
+    org.hibernate.SQL: WARN

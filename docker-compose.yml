@@ -1,0 +1,78 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  db:
+    image: postgres:16-alpine
+    container_name: quiverbot-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:-quiverbot}
+      POSTGRES_USER: ${DB_USER:-quiverbot}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-quiverbot}
+    ports:
+      - "${DB_PORT:-5433}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U quiverbot -d quiverbot"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # QuiverBot Application (Kotlin/Spring Boot)
+  app:
+    build: .
+    container_name: quiverbot-app
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "${PORT:-3000}:3000"
+    environment:
+      # Database
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:-quiverbot}
+      DB_USER: ${DB_USER:-quiverbot}
+      DB_PASSWORD: ${DB_PASSWORD:-quiverbot}
+
+      # Server
+      PORT: 3000
+
+      # Twitter/RapidAPI
+      RAPIDAPI_KEY: ${RAPIDAPI_KEY:-}
+      QUIVERQUANT_REST_ID: ${QUIVERQUANT_REST_ID:-}
+      TWITTER_TARGET_USERNAME: ${TWITTER_TARGET_USERNAME:-QuiverQuant}
+
+      # OpenAI
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4-turbo-preview}
+
+      # Sender.net Email
+      SENDER_API_KEY: ${SENDER_API_KEY:-}
+      SENDER_CAMPAIGN_ID_ALERT: ${SENDER_CAMPAIGN_ID_ALERT:-}
+      SENDER_CAMPAIGN_ID_SUMMARY: ${SENDER_CAMPAIGN_ID_SUMMARY:-}
+
+      # Feature flags
+      EMAIL_TEST_MODE: ${EMAIL_TEST_MODE:-false}
+      INGESTION_ENABLED: ${INGESTION_ENABLED:-true}
+      CLASSIFICATION_ENABLED: ${CLASSIFICATION_ENABLED:-true}
+      ALERTING_ENABLED: ${ALERTING_ENABLED:-true}
+      SUMMARY_ENABLED: ${SUMMARY_ENABLED:-true}
+      DISABLE_CRON_JOBS: ${DISABLE_CRON_JOBS:-false}
+
+      # Thresholds
+      SIGNAL_THRESHOLD: ${SIGNAL_THRESHOLD:-0.5}
+      ALERT_THRESHOLD: ${ALERT_THRESHOLD:-0.7}
+      CLASSIFICATION_BATCH_SIZE: ${CLASSIFICATION_BATCH_SIZE:-10}
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:3000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+volumes:
+  postgres_data:
