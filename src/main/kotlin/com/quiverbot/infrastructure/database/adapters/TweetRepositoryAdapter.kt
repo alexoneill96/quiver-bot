@@ -71,4 +71,11 @@ class TweetRepositoryAdapter(
     override fun getLatestTweetId(): String? {
         return jpaRepository.findFirstByOrderByPostedAtDesc()?.id
     }
+
+    @Transactional
+    override fun deleteAll(): Int {
+        val count = jpaRepository.count().toInt()
+        jpaRepository.deleteAll()
+        return count
+    }
 }

@@ -8,6 +8,7 @@ import com.quiverbot.domain.entities.EmailRecipient
 import com.quiverbot.domain.entities.Signal
 import com.quiverbot.domain.repositories.EmailRecipientRepository
 import com.quiverbot.domain.repositories.SignalRepository
+import com.quiverbot.domain.repositories.TweetRepository
 import mu.KotlinLogging
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -43,6 +44,7 @@ class DebugController(
     private val alertingService: AlertingService,
     private val summaryService: SummaryService,
     private val signalRepository: SignalRepository,
+    private val tweetRepository: TweetRepository,
     private val emailRecipientRepository: EmailRecipientRepository,
     @Value("\${cron.disabled:false}") private val isDebugMode: Boolean
 ) {
@@ -279,6 +281,44 @@ class DebugController(
     }
 
     /**
+     * Clear all data from tweets and signals tables.
+     *
+     * DELETE /debug/clear-data
+     *
+     * WARNING: This permanently deletes all tweets and signals!
+     * Useful for resetting the database during testing.
+     */
+    @DeleteMapping("/clear-data")
+    fun clearData(): ClearDataResponse {
+        logger.warn { "Clearing all tweets and signals data" }
+
+        return try {
+            // Delete signals first (foreign key to tweets)
+            val signalsDeleted = signalRepository.deleteAll()
+            logger.info { "Deleted $signalsDeleted signal(s)" }
+
+            // Delete tweets
+            val tweetsDeleted = tweetRepository.deleteAll()
+            logger.info { "Deleted $tweetsDeleted tweet(s)" }
+
+            ClearDataResponse(
+                success = true,
+                message = "Cleared all data",
+                tweetsDeleted = tweetsDeleted,
+                signalsDeleted = signalsDeleted
+            )
+        } catch (e: Exception) {
+            logger.error(e) { "Failed to clear data" }
+            ClearDataResponse(
+                success = false,
+                message = "Failed to clear data: ${e.message}",
+                tweetsDeleted = 0,
+                signalsDeleted = 0
+            )
+        }
+    }
+
+    /**
      * Run the full pipeline: ingestion → classification → alerting.
      *
      * POST /debug/trigger/full-pipeline
@@ -409,4 +449,11 @@ private fun EmailRecipient.toDto() = RecipientDto(
     receivesSummary = receivesSummary,
     isActive = isActive,
     createdAt = createdAt.toString()
+)
+
+data class ClearDataResponse(
+    val success: Boolean,
+    val message: String,
+    val tweetsDeleted: Int,
+    val signalsDeleted: Int
 )

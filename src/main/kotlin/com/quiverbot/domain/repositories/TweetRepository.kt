@@ -38,4 +38,9 @@ interface TweetRepository {
      * Get the ID of the most recently posted tweet.
      */
     fun getLatestTweetId(): String?
+
+    /**
+     * Delete all tweets.
+     */
+    fun deleteAll(): Int
 }

@@ -43,4 +43,9 @@ interface SignalRepository {
      * Find all signals, ordered by classification time descending.
      */
     fun findAll(): List<Signal>
+
+    /**
+     * Delete all signals.
+     */
+    fun deleteAll(): Int
 }

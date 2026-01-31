@@ -73,4 +73,11 @@ class SignalRepositoryAdapter(
             .sortedByDescending { it.classifiedAt }
             .map { it.toDomain() }
     }
+
+    @Transactional
+    override fun deleteAll(): Int {
+        val count = jpaRepository.count().toInt()
+        jpaRepository.deleteAll()
+        return count
+    }
 }
