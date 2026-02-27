@@ -68,7 +68,7 @@ telegram:
 # Feature flags
 ingestion:
   enabled: ${INGESTION_ENABLED:true}
-  cron: ${INGESTION_CRON:0 */5 * * * *}
+  cron: ${INGESTION_CRON:0 0 * * * *}
 
 classification:
   enabled: ${CLASSIFICATION_ENABLED:true}
