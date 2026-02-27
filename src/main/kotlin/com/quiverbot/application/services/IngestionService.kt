@@ -30,7 +30,7 @@ class IngestionService(
      * Scheduled job to poll for new tweets.
      * Runs every 5 minutes by default.
      */
-    @Scheduled(cron = "\${ingestion.cron:0 */45 * * * *}")
+    @Scheduled(cron = "\${ingestion.cron:0 0 * * * *}")
     fun pollForNewTweets() {
         if (cronDisabled) {
             return // Silent skip when cron jobs are disabled for manual testing
